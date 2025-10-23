@@ -10,14 +10,13 @@ class DatabaseConnection(BaseModel):
     database: str
     username: str
     password: str
-    schema: Optional[str] = None
 
 
 class SQLQuery(BaseModel):
     """Modelo para ejecutar consultas SQL"""
     connection_id: str
     query: str
-    limit: Optional[int] = 100
+    # limit: Optional[int] = 100
 
 
 class ConnectionResponse(BaseModel):

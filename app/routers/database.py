@@ -44,3 +44,13 @@ async def list_active_connections(
     Listar todas las conexiones activas
     """
     return db_service.get_active_connections()
+
+@router.delete("/connection/{connection_id}")
+async def close_database_connection(
+    connection_id: str,
+    db_service: DatabaseService = Depends(get_database_service)
+):
+    """
+    Cerrar una conexión de base de datos activa
+    """
+    return db_service.close_connection(connection_id)

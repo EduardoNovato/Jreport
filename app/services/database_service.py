@@ -88,10 +88,10 @@ class DatabaseService:
                 query_to_execute = sql_query.query
                 
                 # Agregar LIMIT si no está presente
-                if (sql_query.limit and 
-                    'limit' not in query_lower and 
-                    query_lower.startswith('select')):
-                    query_to_execute += f" LIMIT {sql_query.limit}"
+                # if (sql_query.limit and 
+                #     'limit' not in query_lower and 
+                #     query_lower.startswith('select')):
+                #     query_to_execute += f" LIMIT {sql_query.limit}"
                 
                 result = conn.execute(text(query_to_execute))
                 rows = result.fetchall()
@@ -139,7 +139,6 @@ class DatabaseService:
                 "host": conn.host,
                 "port": conn.port,
                 "database": conn.database,
-                "schema": conn.schema
             })
         
         return {
@@ -147,3 +146,34 @@ class DatabaseService:
             "active_connections": len(self.active_connections),
             "connections": connections_info
         }
+    
+    def close_connection(self, connection_id: str):
+        """Cerrar una conexión de base de datos activa"""
+        if connection_id not in self.active_connections:
+            raise HTTPException(
+                status_code=404,
+                detail="Conexión no encontrada."
+            )
+        
+        try:
+            # Cerrar el engine apropiadamente si existe
+            if connection_id in self.active_engines:
+                engine = self.active_engines[connection_id]
+                engine.dispose()  # Cerrar todas las conexiones del pool
+                del self.active_engines[connection_id]
+            
+            # Remover la conexión
+            del self.active_connections[connection_id]
+            
+            logger.info(f"Conexión cerrada: {connection_id}")
+            return {
+                "status": "success",
+                "message": f"Conexión {connection_id} cerrada exitosamente."
+            }
+            
+        except Exception as e:
+            logger.error(f"Error al cerrar conexión {connection_id}: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al cerrar la conexión: {str(e)}"
+            )

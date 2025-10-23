@@ -9,3 +9,11 @@
 
   pip install -r requirements.txt
 ```
+
+## Configuración del Proyecto
+
+```bash
+  .venv\Scripts\activate
+
+  python main.py
+```
